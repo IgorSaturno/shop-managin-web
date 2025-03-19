@@ -3,7 +3,7 @@ import { createId } from "@paralleldrive/cuid2";
 
 export const userRoleEnum = pgEnum("user_role", ["manager", "customer"]);
 
-export const usersTable = pgTable("users", {
+export const users = pgTable("users", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
@@ -12,5 +12,8 @@ export const usersTable = pgTable("users", {
   phone: text("phone"),
   role: userRoleEnum("role").default("customer").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
