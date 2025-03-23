@@ -11,7 +11,8 @@
     "generate": "bun -b drizzle-kit generate",
     "migrate": "bun src/db/migrate.ts",
     "studio": "bunx drizzle-kit studio",
-    "seed": "bun src/db/seed.ts"
+    "seed": "bun src/db/seed.ts",
+    "lint": "eslint --fix src --ext ts"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.6.0",
@@ -20,9 +21,12 @@
     "chalk": "^5.4.1",
     "drizzle-kit": "^0.30.5",
     "eslint": "^9.22.0",
+    "eslint-plugin-drizzle": "^0.2.3",
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@elysiajs/cookie": "^0.8.0",
+    "@elysiajs/jwt": "^1.2.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "drizzle-orm": "^0.40.1",
     "elysia": "^1.2.25",
