@@ -1,23 +1,30 @@
 import { Elysia, t } from "elysia";
 import { registerStore } from "./routes/register-store";
 import { sendAuthLink } from "./routes/send-auth-link";
-import jwt from "@elysiajs/jwt";
-import { env } from "../env";
-import cookie from "@elysiajs/cookie";
+import { authenticateFromLink } from "./routes/authenticate-from-link";
+import { signOut } from "./routes/sign-out";
+import { getProfile } from "./routes/get-profile";
+import { getManagedStore } from "./routes/get-managed-store";
 
 const app = new Elysia()
-  .use(
-    jwt({
-      secret: env.JWT_SECRET_KEY,
-      schema: t.Object({
-        sub: t.String(),
-        storeId: t.Optional(t.String()),
-      }),
-    })
-  )
-  .use(cookie())
   .use(registerStore)
-  .use(sendAuthLink);
+  .use(sendAuthLink)
+  .use(authenticateFromLink)
+  .use(signOut)
+  .use(getProfile)
+  .use(getManagedStore)
+  .onError(({ code, error, set }) => {
+    switch (code) {
+      case "VALIDATION": {
+        set.status = error.status;
+        return error.toResponse();
+      }
+      default: {
+        console.error(error);
+        return new Response(null, { status: 500 });
+      }
+    }
+  });
 
 app.listen(3333, () => {
   console.log("🔥  HTTP server running!");

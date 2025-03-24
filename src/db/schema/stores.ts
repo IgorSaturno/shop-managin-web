@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
-import { users } from "./users";
+import { users, orders, products } from ".";
 import { relations } from "drizzle-orm";
 
 export const stores = pgTable("stores", {
@@ -19,12 +19,14 @@ export const stores = pgTable("stores", {
     .$onUpdate(() => new Date()),
 });
 
-export const storesRelations = relations(stores, ({ one }) => {
+export const storesRelations = relations(stores, ({ one, many }) => {
   return {
     manager: one(users, {
       fields: [stores.managerId],
       references: [users.id],
       relationName: "store_manager",
     }),
+    orders: many(orders),
+    products: many(products),
   };
 });
