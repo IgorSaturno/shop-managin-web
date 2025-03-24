@@ -5,6 +5,7 @@ import { authenticateFromLink } from "./routes/authenticate-from-link";
 import { signOut } from "./routes/sign-out";
 import { getProfile } from "./routes/get-profile";
 import { getManagedStore } from "./routes/get-managed-store";
+import { getOrderDetails } from "./routes/get-order-details";
 
 const app = new Elysia()
   .use(registerStore)
@@ -13,6 +14,7 @@ const app = new Elysia()
   .use(signOut)
   .use(getProfile)
   .use(getManagedStore)
+  .use(getOrderDetails)
   .onError(({ code, error, set }) => {
     switch (code) {
       case "VALIDATION": {

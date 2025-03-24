@@ -3,7 +3,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { users, orders, products } from ".";
 import { relations } from "drizzle-orm";
 
-export const ordersItems = pgTable("orders_items", {
+export const orderItems = pgTable("orders_items", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
@@ -12,7 +12,7 @@ export const ordersItems = pgTable("orders_items", {
     .references(() => orders.id, {
       onDelete: "cascade",
     }),
-  productId: text("product_id").references(() => users.id, {
+  productId: text("product_id").references(() => products.id, {
     onDelete: "set null",
   }),
   priceInCents: integer("price_in_cents").notNull(),
@@ -21,14 +21,14 @@ export const ordersItems = pgTable("orders_items", {
   thumbnailUrl: text("thumbnail_url").notNull(), // URL da primeira imagem
 });
 
-export const orderItemsRelations = relations(ordersItems, ({ one }) => ({
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   order: one(orders, {
-    fields: [ordersItems.orderId],
+    fields: [orderItems.orderId],
     references: [orders.id],
     relationName: "order_item_order",
   }),
   product: one(products, {
-    fields: [ordersItems.productId],
+    fields: [orderItems.productId],
     references: [products.id],
     relationName: "order_item_product",
   }),

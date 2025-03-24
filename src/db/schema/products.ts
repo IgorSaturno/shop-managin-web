@@ -13,7 +13,7 @@ import { productCategories } from "./productCategories";
 import { brands } from "./brands";
 import { productTags } from "./product-tags";
 import { productImages } from "./product-Images";
-import { ordersItems } from "./order-items";
+import { orderItems } from "./order-items";
 
 export const products = pgTable("products", {
   id: text("id")
@@ -22,12 +22,16 @@ export const products = pgTable("products", {
   name: text("name").notNull(),
   description: text("description").notNull(),
   characteristics: text("characteristics").notNull(),
-  idictationForUse: text("idictationForUse"),
   priceInCents: integer("price_in_cents").notNull(),
   sku: text("sku").unique(), // Adicionei SKU (Stock Keeping Unit)
   stock: integer("stock").default(0).notNull(), // Controle de estoque
   isFeatured: boolean("is_featured").default(false).notNull(), // Destaque
   isArchived: boolean("is_archived").default(false).notNull(), // Arquivar produto
+  status: text("status", {
+    enum: ["available", "unavailable", "archived"],
+  })
+    .default("available")
+    .notNull(),
   categoryId: text("category_id").references(() => categories.id),
   brandId: text("brand_id").references(() => brands.id, {
     onDelete: "set null",
@@ -57,5 +61,5 @@ export const productRelations = relations(products, ({ one, many }) => ({
   }),
   images: many(productImages),
   tags: many(productTags),
-  ordersItems: many(ordersItems),
+  ordersItems: many(orderItems),
 }));

@@ -3,7 +3,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { users } from "./users";
 import { relations } from "drizzle-orm";
 import { stores } from "./stores";
-import { ordersItems } from "./order-items";
+import { orderItems } from "./order-items";
 
 export const orderStatusEnum = pgEnum("order_status", [
   // Fluxo principal
@@ -38,7 +38,7 @@ export const orders = pgTable("orders", {
   }),
   storeId: text("store_id")
     .notNull()
-    .references(() => users.id, {
+    .references(() => stores.id, {
       onDelete: "cascade",
     }),
   status: orderStatusEnum("status").default("pending").notNull(),
@@ -59,7 +59,12 @@ export const ordersRelations = relations(orders, ({ one, many }) => {
       references: [stores.id],
       relationName: "order_customer",
     }),
+    customer: one(users, {
+      fields: [orders.customerId],
+      references: [users.id],
+      relationName: "order_customer",
+    }),
 
-    orderItems: many(ordersItems),
+    orderItems: many(orderItems),
   };
 });
