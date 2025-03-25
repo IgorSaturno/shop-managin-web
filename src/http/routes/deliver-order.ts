@@ -1,0 +1,47 @@
+import Elysia, { t } from "elysia";
+import { auth } from "../auth";
+import { UnauthorizedError } from "../errors/unauthorized-error";
+import { db } from "../../db/connection";
+import { orders } from "../../db/schema";
+import { eq } from "drizzle-orm";
+
+export const deliverOrder = new Elysia().use(auth).patch(
+  "/orders/:orderId/deliver",
+  async ({ getCurrentUser, set, params }) => {
+    const { orderId } = params;
+    const { storeId } = await getCurrentUser();
+
+    if (!storeId) {
+      throw new UnauthorizedError();
+    }
+
+    const order = await db.query.orders.findFirst({
+      where(fields, { eq }) {
+        return eq(fields.id, orderId);
+      },
+    });
+
+    if (!order) {
+      set.status = 400;
+      return { message: "Order not found." };
+    }
+
+    if (order.status != "out_for_delivery") {
+      set.status = 400;
+      return {
+        message:
+          "You cannot deliver orders that are not in 'out_for_delivery' status.",
+      };
+    }
+
+    await db
+      .update(orders)
+      .set({ status: "delivered" })
+      .where(eq(orders.id, orderId));
+  },
+  {
+    params: t.Object({
+      orderId: t.String(),
+    }),
+  }
+);
