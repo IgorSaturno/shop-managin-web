@@ -49,7 +49,7 @@ export const orders = pgTable("orders", {
 
 export const ordersRelations = relations(orders, ({ one, many }) => {
   return {
-    manager: one(users, {
+    customer: one(users, {
       fields: [orders.customerId],
       references: [users.id],
       relationName: "order_customer",
@@ -57,12 +57,7 @@ export const ordersRelations = relations(orders, ({ one, many }) => {
     store: one(stores, {
       fields: [orders.customerId],
       references: [stores.id],
-      relationName: "order_customer",
-    }),
-    customer: one(users, {
-      fields: [orders.customerId],
-      references: [users.id],
-      relationName: "order_customer",
+      relationName: "order_store",
     }),
 
     orderItems: many(orderItems),

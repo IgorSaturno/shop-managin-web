@@ -105,22 +105,26 @@ console.log(chalk.yellow("✔ Created store!"));
  * Create categories
  */
 
-function generateCategoies() {
-  return {
-    name: faker.commerce.department(),
-    storeId: store.id,
-    createdAt: faker.date.past({ years: 1 }),
-  };
-}
+const categoryNames = [
+  "Industrial",
+  "Games",
+  "Electronics",
+  "Fashion",
+  "Home",
+  "Sports",
+  "Books",
+  "Health",
+];
+
 const availableCategories = await db
   .insert(categories)
-  .values([
-    generateCategoies(),
-    generateCategoies(),
-    generateCategoies(),
-    generateCategoies(),
-    generateCategoies(),
-  ])
+  .values(
+    categoryNames.map((name) => ({
+      name,
+      storeId: store.id,
+      createdAt: faker.date.past({ years: 1 }),
+    }))
+  )
   .returning();
 
 console.log(chalk.yellow("✔ Created categories!"));
