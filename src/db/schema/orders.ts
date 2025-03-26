@@ -55,7 +55,7 @@ export const ordersRelations = relations(orders, ({ one, many }) => {
       relationName: "order_customer",
     }),
     store: one(stores, {
-      fields: [orders.customerId],
+      fields: [orders.storeId],
       references: [stores.id],
       relationName: "order_store",
     }),

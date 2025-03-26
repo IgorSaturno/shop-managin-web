@@ -67,7 +67,7 @@ const [manager] = await db
   .values([
     {
       name: faker.person.fullName(),
-      email: "admin@admin.com",
+      email: "igornascimentosaturnino11@gmail.com",
       role: "manager",
     },
   ])
@@ -335,6 +335,17 @@ for (let i = 0; i < 200; i++) {
       "out_for_delivery",
       "delivered",
       "completed",
+
+      "awaiting_payment",
+      "on_hold",
+      "backorder",
+      "partially_shipped",
+
+      "canceled",
+      "returned",
+      "refunded",
+      "payment_failed",
+      "failed_delivery",
     ]),
     createdAt: faker.date.recent({ days: 40 }),
   });
