@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { cors } from "@elysiajs/cors";
 import { registerStore } from "./routes/register-store";
 import { sendAuthLink } from "./routes/send-auth-link";
 import { authenticateFromLink } from "./routes/authenticate-from-link";
@@ -17,8 +18,10 @@ import { getMonthOrdersAmount } from "./routes/get-month-orders-amount";
 import { getMonthCanceledOrdersAmount } from "./routes/get-month-canceled-orders-amount";
 import { getPopularProducts } from "./routes/get-popular-products";
 import { getDailyReceiptInPeriod } from "./routes/get-daily-receipt-in-period";
+import { updateProfile } from "./routes/update-profile";
 
 const app = new Elysia()
+  .use(cors({ origin: "http://localhost:5173" }))
   .use(registerStore)
   .use(sendAuthLink)
   .use(authenticateFromLink)
@@ -37,6 +40,7 @@ const app = new Elysia()
   .use(getMonthCanceledOrdersAmount)
   .use(getPopularProducts)
   .use(getDailyReceiptInPeriod)
+  .use(updateProfile)
   .onError(({ code, error, set }) => {
     switch (code) {
       case "VALIDATION": {

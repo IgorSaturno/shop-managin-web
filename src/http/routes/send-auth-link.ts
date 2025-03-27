@@ -34,16 +34,18 @@ export const sendAuthLink = new Elysia().post(
     authLink.searchParams.set("code", authLinkCode);
     authLink.searchParams.set("redirect", env.AUTH_REDIRECT_URL);
 
-    const info = await mail.sendMail({
-      from: {
-        name: "Shop-Managin",
-        address: "hi@shopmanagin.com",
-      },
-      to: email,
-      subject: "Authenticate to Shop Managin",
-      text: `Use the following link to authenticate on Shop Managin: ${authLink.toString()}`,
-    });
-    console.log(nodemailer.getTestMessageUrl(info));
+    console.log(authLink.toString());
+
+    // const info = await mail.sendMail({
+    //   from: {
+    //     name: "Shop-Managin",
+    //     address: "hi@shopmanagin.com",
+    //   },
+    //   to: email,
+    //   subject: "Authenticate to Shop Managin",
+    //   text: `Use the following link to authenticate on Shop Managin: ${authLink.toString()}`,
+    // });
+    // console.log(nodemailer.getTestMessageUrl(info));
   },
   {
     body: t.Object({
