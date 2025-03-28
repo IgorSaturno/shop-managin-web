@@ -30,7 +30,7 @@ export const getOrders = new Elysia().use(auth).get(
         and(
           eq(orders.storeId, storeId),
           orderId ? ilike(orders.id, `%${orderId}%`) : undefined,
-          status ? eq(orders.id, status) : undefined,
+          status ? eq(orders.status, status) : undefined,
           customerName ? ilike(users.name, `%${customerName}%`) : undefined
         )
       );
@@ -46,9 +46,15 @@ export const getOrders = new Elysia().use(auth).get(
           return [
             sql`CASE ${fields.status}
               WHEN 'pending' THEN 1
-              WHEN 'processing' THEN 2
-              WHEN 'out_for_delivery' THEN 3
-              WHEN 'delivered' THEN 4
+              WHEN 'approved' THEN 2
+              WHEN 'refused' THEN 3
+              WHEN 'refunded' THEN 4
+              WHEN 'returned' THEN 5
+              WHEN 'processing' THEN 6
+              WHEN 'in_transit' THEN 7
+              WHEN 'delivering' THEN 8
+              WHEN 'delivered' THEN 9
+              WHEN 'failed_delivery' THEN 10
               WHEN 'canceled' THEN 99
             END`,
             desc(fields.createdAt),

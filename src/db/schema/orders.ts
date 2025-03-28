@@ -6,27 +6,17 @@ import { stores } from "./stores";
 import { orderItems } from "./order-items";
 
 export const orderStatusEnum = pgEnum("order_status", [
-  // Fluxo principal
   "pending", // Pedido criado, aguardando pagamento
-  "payment_approved", // Pagamento confirmado
+  "approved", // Pagamento confirmado
+  "refused", // Pagamento recusado
+  "refunded", // Pagamento reembolsado
+  "returned", // De volta a loja
   "processing", // Em preparação (separação de estoque, embalagem)
   "in_transit", // Saiu do centro de distribuição
-  "out_for_delivery", // Entregador a caminho do destino
+  "delivering", // Entregador a caminho do destino
   "delivered", // Entregue ao cliente
-  "completed", // Pedido finalizado (período de devolução expirado)
-
-  // Fluxos alternativos
-  "awaiting_payment", // Aguardando confirmação de pagamento (ex: boleto)
-  "on_hold", // Requer verificação manual (ex: fraude)
-  "backorder", // Aguardando reposição de estoque
-  "partially_shipped", // Parcialmente enviado (pedidos divididos)
-
-  // Estados finais
-  "canceled", // Cancelado antes do envio
-  "returned", // Devolvido pelo cliente
-  "refunded", // Reembolso processado
-  "payment_failed", // Pagamento recusado/rejeitado
-  "failed_delivery", // Tentativa de entrega sem sucesso
+  "canceled", // Pedido cancelado
+  "failed_delivery", // Falha na entrega
 ]);
 
 export const orders = pgTable("orders", {

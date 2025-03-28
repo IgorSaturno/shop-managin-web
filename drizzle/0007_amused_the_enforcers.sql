@@ -1,1 +1,0 @@
-ALTER TABLE "products" ADD COLUMN "status" text DEFAULT 'available' NOT NULL;
