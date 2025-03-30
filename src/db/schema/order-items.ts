@@ -18,7 +18,6 @@ export const orderItems = pgTable("orders_items", {
   priceInCents: integer("price_in_cents").notNull(),
   quantity: integer("quantity").notNull(),
   productName: text("product_name").notNull(), // Nome do produto no momento da compra
-  thumbnailUrl: text("thumbnail_url").notNull(), // URL da primeira imagem
 });
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({

@@ -4,6 +4,7 @@ import { users } from "./users";
 import { relations } from "drizzle-orm";
 import { stores } from "./stores";
 import { orderItems } from "./order-items";
+import { varchar } from "drizzle-orm/pg-core";
 
 export const orderStatusEnum = pgEnum("order_status", [
   "pending", // Pedido criado, aguardando pagamento
@@ -33,7 +34,10 @@ export const orders = pgTable("orders", {
     }),
   status: orderStatusEnum("status").default("pending").notNull(),
   totalInCents: integer("total_in_cents").notNull(),
-
+  cep: varchar("cep", { length: 9 }).notNull(),
+  streetName: text("street_name").notNull(),
+  number: varchar("number", { length: 4 }).notNull(),
+  complement: text("complement"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

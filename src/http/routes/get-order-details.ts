@@ -17,6 +17,10 @@ export const getOrderDetails = new Elysia().use(auth).get(
       columns: {
         id: true,
         status: true,
+        cep: true,
+        streetName: true,
+        number: true,
+        complement: true,
         totalInCents: true,
         createdAt: true,
       },
@@ -33,7 +37,6 @@ export const getOrderDetails = new Elysia().use(auth).get(
             id: true,
             priceInCents: true,
             quantity: true,
-            thumbnailUrl: true,
           },
           with: {
             product: {

@@ -1,4 +1,3 @@
-// src/api/get-customers.ts
 import Elysia, { t } from "elysia";
 import { auth } from "../auth";
 import { db } from "../../db/connection";
@@ -16,13 +15,16 @@ export const getCustomers = new Elysia().use(auth).get(
       throw new UnauthorizedError();
     }
 
+    console.log("Query parameters:", query);
+    console.log("Store ID:", storeId);
+
     const baseQuery = db
       .select({
-        id: users.id,
-        name: users.name,
+        customerId: users.id,
+        customerName: users.name,
         email: users.email,
         phone: users.phone,
-        orderCount: count(orders.id),
+        orderCount: count(orders.id).as("orderCount"),
         createdAt: users.createdAt,
       })
       .from(users)

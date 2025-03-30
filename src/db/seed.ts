@@ -36,27 +36,7 @@ await db.delete(tags);
 
 console.log(chalk.yellow("✔ Databese reset!"));
 
-/**
- * Create customers
- */
-
-const [customer1, customer2] = await db
-  .insert(users)
-  .values([
-    {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      role: "customer",
-    },
-    {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      role: "customer",
-    },
-  ])
-  .returning();
-
-console.log(chalk.yellow("✔ Created customers!"));
+const storeId = createId();
 
 /**
  * Create manager
@@ -68,7 +48,13 @@ const [manager] = await db
     {
       name: faker.person.fullName(),
       email: "igornascimentosaturnino11@gmail.com",
+      phone: faker.helpers.replaceSymbols("###########"),
+      cep: faker.helpers.replaceSymbols("#####-###"),
+      streetName: faker.location.street(),
+      number: faker.number.int({ min: 1, max: 9999 }).toString(),
+      complement: faker.lorem.words(),
       role: "manager",
+      storeId,
     },
   ])
   .returning({
@@ -100,6 +86,40 @@ if (!store) {
 }
 
 console.log(chalk.yellow("✔ Created store!"));
+
+/**
+ * Create customers
+ */
+
+const [customer1, customer2] = await db
+  .insert(users)
+  .values([
+    {
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      phone: faker.helpers.replaceSymbols("###########"),
+      cep: faker.helpers.replaceSymbols("#####-###"),
+      streetName: faker.location.street(),
+      number: faker.number.int({ min: 1, max: 9999 }).toString(),
+      complement: faker.lorem.words(),
+      role: "customer",
+      storeId: store.id,
+    },
+    {
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      phone: faker.helpers.replaceSymbols("###########"),
+      cep: faker.helpers.replaceSymbols("#####-###"),
+      streetName: faker.location.street(),
+      number: faker.number.int({ min: 1, max: 9999 }).toString(),
+      complement: faker.lorem.words(),
+      role: "customer",
+      storeId: store.id,
+    },
+  ])
+  .returning();
+
+console.log(chalk.yellow("✔ Created customers!"));
 
 /**
  * Create categories
@@ -318,7 +338,6 @@ for (let i = 0; i < 200; i++) {
       priceInCents: orderProduct.priceInCents,
       quantity,
       productName: orderProduct.name,
-      thumbnailUrl: faker.image.urlLoremFlickr({ category: "commerce" }), // Imagem fake
     });
   });
 
@@ -340,6 +359,10 @@ for (let i = 0; i < 200; i++) {
       "canceled",
       "failed_delivery",
     ]),
+    cep: faker.location.zipCode().replace(/-/, ""),
+    streetName: faker.location.street(),
+    number: faker.number.int({ min: 1, max: 9999 }).toString(),
+    complement: faker.lorem.words(),
     createdAt: faker.date.recent({ days: 40 }),
   });
 }

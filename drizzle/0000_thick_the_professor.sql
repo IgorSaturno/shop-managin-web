@@ -34,8 +34,7 @@ CREATE TABLE "orders_items" (
 	"product_id" text,
 	"price_in_cents" integer NOT NULL,
 	"quantity" integer NOT NULL,
-	"product_name" text NOT NULL,
-	"thumbnail_url" text NOT NULL
+	"product_name" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "orders" (
@@ -44,6 +43,10 @@ CREATE TABLE "orders" (
 	"store_id" text NOT NULL,
 	"status" "order_status" DEFAULT 'pending' NOT NULL,
 	"total_in_cents" integer NOT NULL,
+	"cep" varchar(9) NOT NULL,
+	"street_name" text NOT NULL,
+	"number" varchar(4) NOT NULL,
+	"complement" text,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -105,8 +108,13 @@ CREATE TABLE "users" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"email" text NOT NULL,
-	"phone" text,
+	"phone" varchar(11) NOT NULL,
+	"cep" varchar(9) NOT NULL,
+	"street_name" text,
+	"number" varchar(4),
+	"complement" text,
 	"role" "user_role" DEFAULT 'customer' NOT NULL,
+	"storeId" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")

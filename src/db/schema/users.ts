@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import { orders } from "./orders";
@@ -12,8 +12,13 @@ export const users = pgTable("users", {
     .primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  phone: text("phone"),
+  phone: varchar("phone", { length: 11 }).notNull(),
+  cep: varchar("cep", { length: 9 }).notNull(),
+  streetName: text("street_name"),
+  number: varchar("number", { length: 4 }),
+  complement: text("complement"),
   role: userRoleEnum("role").default("customer").notNull(),
+  storeId: text("storeId").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -28,6 +33,7 @@ export const usersRelations = relations(users, ({ one, many }) => {
       references: [stores.managerId],
       relationName: "managed_store",
     }),
+
     orders: many(orders),
   };
 });

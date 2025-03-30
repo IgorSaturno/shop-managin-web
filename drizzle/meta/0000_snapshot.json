@@ -1,5 +1,5 @@
 {
-  "id": "b4d0beea-f070-4d76-9a97-f0fd984d76a8",
+  "id": "23ab845e-66da-41de-a5cd-f55206a2d959",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -261,12 +261,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "thumbnail_url": {
-          "name": "thumbnail_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {},
@@ -339,6 +333,30 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "cep": {
+          "name": "cep",
+          "type": "varchar(9)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "street_name": {
+          "name": "street_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "number": {
+          "name": "number",
+          "type": "varchar(4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "complement": {
+          "name": "complement",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -851,6 +869,30 @@
         },
         "phone": {
           "name": "phone",
+          "type": "varchar(11)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cep": {
+          "name": "cep",
+          "type": "varchar(9)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "street_name": {
+          "name": "street_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "number": {
+          "name": "number",
+          "type": "varchar(4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "complement": {
+          "name": "complement",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -862,6 +904,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'customer'"
+        },
+        "storeId": {
+          "name": "storeId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",

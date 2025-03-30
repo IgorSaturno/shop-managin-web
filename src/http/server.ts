@@ -19,6 +19,9 @@ import { getMonthCanceledOrdersAmount } from "./routes/get-month-canceled-orders
 import { getPopularProducts } from "./routes/get-popular-products";
 import { getDailyReceiptInPeriod } from "./routes/get-daily-receipt-in-period";
 import { updateProfile } from "./routes/update-profile";
+import { getCustomers } from "./routes/get-customers";
+import { getCustomerDetails } from "./routes/get-customers-details";
+import { getCustomerHistory } from "./routes/get-customer-history";
 
 const app = new Elysia()
   .use(cors({ origin: "http://localhost:5173" }))
@@ -41,6 +44,9 @@ const app = new Elysia()
   .use(getPopularProducts)
   .use(getDailyReceiptInPeriod)
   .use(updateProfile)
+  .use(getCustomers)
+  .use(getCustomerDetails)
+  .use(getCustomerHistory)
   .onError(({ code, error, set }) => {
     switch (code) {
       case "VALIDATION": {
