@@ -22,6 +22,7 @@ import { updateProfile } from "./routes/update-profile";
 import { getCustomers } from "./routes/get-customers";
 import { getCustomerDetails } from "./routes/get-customers-details";
 import { getCustomerHistory } from "./routes/get-customer-history";
+import { getProducts } from "./routes/get-products";
 
 const app = new Elysia()
   .use(cors({ origin: "http://localhost:5173" }))
@@ -47,6 +48,7 @@ const app = new Elysia()
   .use(getCustomers)
   .use(getCustomerDetails)
   .use(getCustomerHistory)
+  .use(getProducts)
   .onError(({ code, error, set }) => {
     switch (code) {
       case "VALIDATION": {

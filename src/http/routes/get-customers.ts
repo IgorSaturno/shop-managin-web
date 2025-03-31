@@ -9,14 +9,14 @@ export const getCustomers = new Elysia().use(auth).get(
   "/customers",
   async ({ getCurrentUser, query }) => {
     const { storeId } = await getCurrentUser();
-    const { name, email, pageIndex } = query;
+    const { customerId, name, email, phone, pageIndex } = query;
 
     if (!storeId) {
       throw new UnauthorizedError();
     }
 
-    console.log("Query parameters:", query);
-    console.log("Store ID:", storeId);
+    // console.log("Query parameters:", query);
+    // console.log("Store ID:", storeId);
 
     const baseQuery = db
       .select({
@@ -33,8 +33,10 @@ export const getCustomers = new Elysia().use(auth).get(
         and(
           eq(users.storeId, storeId),
           eq(users.role, "customer"),
+          customerId ? eq(users.id, customerId) : undefined,
           name ? ilike(users.name, `%${name}%`) : undefined,
-          email ? ilike(users.email, `%${email}%`) : undefined
+          email ? ilike(users.email, `%${email}%`) : undefined,
+          phone ? ilike(users.phone, `%${phone}%`) : undefined
         )
       )
       .groupBy(users.id);
@@ -60,8 +62,10 @@ export const getCustomers = new Elysia().use(auth).get(
   },
   {
     query: t.Object({
+      customerId: t.Optional(t.String()),
       name: t.Optional(t.String()),
       email: t.Optional(t.String()),
+      phone: t.Optional(t.String()),
       pageIndex: t.Numeric({ minimum: 0 }),
     }),
   }
