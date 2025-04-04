@@ -1,5 +1,7 @@
 import Elysia, { t } from "elysia";
+import { auth } from "../auth";
 import { db } from "../../db/connection";
+import { UnauthorizedError } from "../errors/unauthorized-error";
 import {
   brands,
   categories,
@@ -7,96 +9,132 @@ import {
   productTags,
   tags,
 } from "../../db/schema";
-import { eq, ilike, inArray } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 
-export const getProducts = new Elysia().get(
+export const getProducts = new Elysia().use(auth).get(
   "/products",
-  async ({ query }) => {
-    const { productName, pageIndex, productId, status, category, subBrand } =
-      query;
+  async ({ getCurrentUser, query }) => {
+    const { storeId } = await getCurrentUser();
+    if (!storeId) throw new UnauthorizedError();
+
+    const {
+      productName,
+      productId,
+      status,
+      category,
+      subBrand,
+      tags: filterTags,
+      pageIndex,
+    } = query;
     const perPage = 10;
 
-    const baseQuery = await db
+    // Constrói a query base com JOINs para categorias e marcas
+    const baseQuery = db
       .select({
         productId: products.id,
         productName: products.name,
         description: products.description,
-        category: categories.name,
-        subBrand: brands.name,
         priceInCents: products.priceInCents,
         stock: products.stock,
         sku: products.sku,
         isFeatured: products.isFeatured,
         status: products.status,
         createdAt: products.createdAt,
+        categoryName: categories.name,
+        brandName: brands.name,
       })
       .from(products)
-      .innerJoin(brands, eq(products.brandId, brands.id))
-      .innerJoin(categories, eq(products.categoryId, categories.id));
-
-    // Aplica os filtros
-    if (productName) {
-      baseQuery = baseQuery.where(ilike(products.name, `%${productName}%`));
-    }
-    if (productId) {
-      baseQuery = baseQuery.where(eq(products.id, productId));
-    }
-    if (status && status !== "all") {
-      baseQuery = baseQuery.where(
-        eq(products.status, status as "available" | "unavailable" | "archived")
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .leftJoin(brands, eq(products.brandId, brands.id))
+      .where(
+        and(
+          eq(products.storeId, storeId),
+          productName ? ilike(products.name, `%${productName}%`) : undefined,
+          productId ? eq(products.id, productId) : undefined,
+          status && status !== "all"
+            ? eq(
+                products.status,
+                status as "available" | "unavailable" | "archived"
+              )
+            : undefined,
+          category && category !== "all"
+            ? eq(products.categoryId, category)
+            : undefined,
+          subBrand && subBrand !== "all"
+            ? eq(products.brandId, subBrand)
+            : undefined,
+          // Filtro por tags: qualifica explicitamente a coluna "name" da tabela "tags"
+          filterTags && filterTags.length > 0
+            ? inArray(sql`"tags"."name"`, filterTags)
+            : undefined
+        )
       );
+
+    // Executa em paralelo a contagem e a busca paginada
+    const [amountQuery, allProducts] = await Promise.all([
+      db.select({ count: count() }).from(baseQuery.as("baseQuery")),
+      db
+        .select()
+        .from(baseQuery.as("baseQuery"))
+        .offset(pageIndex * perPage)
+        .limit(perPage)
+        .orderBy((fields) => [
+          sql`CASE ${fields.status}
+            WHEN 'available' THEN 1
+            WHEN 'unavailable' THEN 2
+            WHEN 'archived' THEN 3
+          END`,
+          desc(fields.createdAt),
+        ]),
+    ]);
+
+    const productIds = allProducts.map((p) => p.productId);
+    let tagsMap = new Map();
+
+    if (productIds.length > 0) {
+      const productTagsData = await db
+        .select({
+          productId: productTags.productId,
+          tagName: tags.name,
+        })
+        .from(productTags)
+        .leftJoin(tags, eq(productTags.tagId, tags.id))
+        .where(inArray(productTags.productId, productIds));
+
+      tagsMap = productTagsData.reduce((map, row) => {
+        if (!map.has(row.productId)) {
+          map.set(row.productId, []);
+        }
+        map.get(row.productId).push(row.tagName);
+        return map;
+      }, new Map());
     }
-    if (category && category !== "all") {
-      baseQuery = baseQuery.where(eq(categories.name, category));
-    }
-    if (subBrand && subBrand !== "all") {
-      baseQuery = baseQuery.where(eq(brands.name, subBrand));
-    }
 
-    const finalQuery = baseQuery.offset(pageIndex * perPage).limit(perPage);
-
-    const productsList = await finalQuery;
-    const productIds = productsList.map((p) => p.productId);
-
-    const tagsData = await db
-      .select({
-        productId: productTags.productId,
-        tagName: tags.name,
-      })
-      .from(productTags)
-      .innerJoin(tags, eq(productTags.tagId, tags.id))
-      .where(inArray(productTags.productId, productIds));
-
-    const tagsByProduct: Record<string, string[]> = {};
-    tagsData.forEach((row) => {
-      if (!tagsByProduct[row.productId]) {
-        tagsByProduct[row.productId] = [];
-      }
-      tagsByProduct[row.productId].push(row.tagName);
-    });
-
-    const productsWithTags = productsList.map((product) => ({
+    const productsWithTags = allProducts.map((product) => ({
       ...product,
-      tags: tagsByProduct[product.productId] || [],
+      tags: tagsMap.get(product.productId) || [],
     }));
+
+    const totalCount = amountQuery[0]?.count;
 
     return {
       products: productsWithTags,
       meta: {
         pageIndex,
         perPage,
-        totalCount: productsList.length,
+        totalCount,
       },
     };
   },
   {
     query: t.Object({
       productName: t.Optional(t.String()),
-      pageIndex: t.Numeric({ minimum: 0 }),
       productId: t.Optional(t.String()),
       status: t.Optional(t.String()),
       category: t.Optional(t.String()),
       subBrand: t.Optional(t.String()),
+      tags: t.Optional(t.Array(t.String())),
+      pageIndex: t.Numeric({ minimum: 0 }),
     }),
   }
 );
