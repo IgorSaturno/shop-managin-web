@@ -16,14 +16,14 @@ export const getPopularProducts = new Elysia()
 
     const popularProducts = await db
       .select({
-        product: products.name,
+        product: products.product_name,
         amount: sum(orderItems.quantity).mapWith(Number),
       })
       .from(orderItems)
       .leftJoin(orders, eq(orders.id, orderItems.orderId))
       .leftJoin(products, eq(products.id, orderItems.productId))
       .where(eq(orders.storeId, storeId))
-      .groupBy(products.name)
+      .groupBy(products.product_name)
       .orderBy((fields) => {
         return desc(fields.amount);
       })

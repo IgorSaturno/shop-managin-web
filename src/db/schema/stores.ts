@@ -7,7 +7,7 @@ export const stores = pgTable("stores", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
-  name: text("name").notNull(),
+  store_name: text("store_name").notNull(),
   description: text("description"),
   managerId: text("manager_id").references(() => users.id, {
     onDelete: "set null",

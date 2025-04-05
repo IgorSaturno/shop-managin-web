@@ -7,14 +7,14 @@ import type { AnyPgColumn } from "drizzle-orm/pg-core";
 
 // Solução principal está na linha do parentBrandId
 export const brands = pgTable("brands", {
-  id: text("id")
+  brand_id: text("brand_id")
     .$defaultFn(() => createId())
     .primaryKey(),
-  name: text("name").notNull(),
+  brand_name: text("brand_name").notNull(),
   slug: text("slug").notNull().unique(),
   description: text("description"),
   parentBrandId: text("parent_brand_id").references(
-    (): AnyPgColumn => brands.id, // Referência direta à coluna
+    (): AnyPgColumn => brands.brand_id, // Referência direta à coluna
     { onDelete: "set null" }
   ), // Auto-relacionamento
   storeId: text("store_id")
@@ -36,7 +36,7 @@ export const brandRelations = relations(brands, ({ one, many }) => ({
   parentBrand: one(brands, {
     // Auto-relacionamento direto
     fields: [brands.parentBrandId],
-    references: [brands.id],
+    references: [brands.brand_id],
   }),
   products: many(products),
 }));

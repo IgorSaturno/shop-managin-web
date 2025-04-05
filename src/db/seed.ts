@@ -74,7 +74,7 @@ const [store] = await db
   .insert(stores)
   .values([
     {
-      name: faker.company.name(),
+      store_name: faker.company.name(),
       description: faker.lorem.paragraph(),
       managerId: manager.id,
     },
@@ -139,8 +139,8 @@ const categoryNames = [
 const availableCategories = await db
   .insert(categories)
   .values(
-    categoryNames.map((name) => ({
-      name,
+    categoryNames.map((category_name) => ({
+      category_name,
       storeId: store.id,
       createdAt: faker.date.past({ years: 1 }),
     }))
@@ -166,9 +166,9 @@ const brandNames = [
 const availableBrands = await db
   .insert(brands)
   .values(
-    brandNames.map((name) => ({
-      name,
-      slug: name.toLowerCase().replace(/\s+/g, "-"),
+    brandNames.map((brand_name) => ({
+      brand_name,
+      slug: brand_name.toLowerCase().replace(/\s+/g, "-"),
       storeId: store.id,
       description: faker.lorem.sentence(),
       createdAt: faker.date.past(),
@@ -186,7 +186,7 @@ const availableProducts = await db
   .insert(products)
   .values(
     Array.from({ length: 10 }).map(() => ({
-      name: faker.commerce.productName(),
+      product_name: faker.commerce.productName(),
       description: faker.commerce.productDescription(),
       characteristics: faker.lorem.sentence(),
       priceInCents: faker.number.int({ min: 1990, max: 49990 }),
@@ -199,8 +199,8 @@ const availableProducts = await db
         "unavailable",
         "archived",
       ]),
-      categoryId: faker.helpers.arrayElement(availableCategories).id,
-      brandId: faker.helpers.arrayElement(availableBrands).id,
+      categoryId: faker.helpers.arrayElement(availableCategories).category_id,
+      brandId: faker.helpers.arrayElement(availableBrands).brand_id,
       storeId: store.id,
       createdAt: faker.date.past(),
       updatedAt: faker.date.recent(),
@@ -217,10 +217,10 @@ const tagNames = ["promoção", "novo", "destaque", "desconto", "exclusivo"];
 const availableTags = await db
   .insert(tags)
   .values(
-    tagNames.map((name) => ({
+    tagNames.map((tag_name) => ({
       id: createId(), // Garante que as tags têm um ID válido
-      name,
-      slug: name.toLowerCase().replace(/\s+/g, "-"),
+      tag_name,
+      slug: tag_name.toLowerCase().replace(/\s+/g, "-"),
       storeId: store.id,
       createdAt: new Date(),
     }))
@@ -271,7 +271,7 @@ for (const product of availableProducts) {
     productCategoriesToInsert.push({
       id: createId(), // Se necessário
       productId: product.id,
-      categoryId: randomCategory.id,
+      categoryId: randomCategory.category_id,
       createdAt: new Date(),
     });
   }
@@ -337,7 +337,7 @@ for (let i = 0; i < 200; i++) {
       productId: orderProduct.id,
       priceInCents: orderProduct.priceInCents,
       quantity,
-      productName: orderProduct.name,
+      productName: orderProduct.product_name,
     });
   });
 

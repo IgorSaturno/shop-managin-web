@@ -9,7 +9,7 @@ import {
   productTags,
   tags,
 } from "../../db/schema";
-import { and, count, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, exists, ilike, inArray, sql } from "drizzle-orm";
 
 export const getProducts = new Elysia().use(auth).get(
   "/products",
@@ -22,7 +22,7 @@ export const getProducts = new Elysia().use(auth).get(
       productId,
       status,
       category,
-      subBrand,
+      brand,
       tags: filterTags,
       pageIndex,
     } = query;
@@ -32,7 +32,7 @@ export const getProducts = new Elysia().use(auth).get(
     const baseQuery = db
       .select({
         productId: products.id,
-        productName: products.name,
+        productName: products.product_name,
         description: products.description,
         priceInCents: products.priceInCents,
         stock: products.stock,
@@ -40,16 +40,18 @@ export const getProducts = new Elysia().use(auth).get(
         isFeatured: products.isFeatured,
         status: products.status,
         createdAt: products.createdAt,
-        categoryName: categories.name,
-        brandName: brands.name,
+        categoryId: categories.category_id,
+        brandId: brands.brand_id,
       })
       .from(products)
-      .leftJoin(categories, eq(products.categoryId, categories.id))
-      .leftJoin(brands, eq(products.brandId, brands.id))
+      .leftJoin(categories, eq(products.categoryId, categories.category_id))
+      .leftJoin(brands, eq(products.brandId, brands.brand_id))
       .where(
         and(
           eq(products.storeId, storeId),
-          productName ? ilike(products.name, `%${productName}%`) : undefined,
+          productName
+            ? ilike(products.product_name, `%${productName}%`)
+            : undefined,
           productId ? eq(products.id, productId) : undefined,
           status && status !== "all"
             ? eq(
@@ -60,12 +62,21 @@ export const getProducts = new Elysia().use(auth).get(
           category && category !== "all"
             ? eq(products.categoryId, category)
             : undefined,
-          subBrand && subBrand !== "all"
-            ? eq(products.brandId, subBrand)
-            : undefined,
+          brand && brand !== "all" ? eq(products.brandId, brand) : undefined,
           // Filtro por tags: qualifica explicitamente a coluna "name" da tabela "tags"
           filterTags && filterTags.length > 0
-            ? inArray(sql`"tags"."name"`, filterTags)
+            ? exists(
+                db
+                  .select()
+                  .from(productTags)
+                  .leftJoin(tags, eq(productTags.tagId, tags.id))
+                  .where(
+                    and(
+                      eq(productTags.productId, products.id),
+                      inArray(tags.tag_name, filterTags)
+                    )
+                  )
+              )
             : undefined
         )
       );
@@ -95,7 +106,7 @@ export const getProducts = new Elysia().use(auth).get(
       const productTagsData = await db
         .select({
           productId: productTags.productId,
-          tagName: tags.name,
+          tagName: tags.tag_name,
         })
         .from(productTags)
         .leftJoin(tags, eq(productTags.tagId, tags.id))
@@ -132,7 +143,7 @@ export const getProducts = new Elysia().use(auth).get(
       productId: t.Optional(t.String()),
       status: t.Optional(t.String()),
       category: t.Optional(t.String()),
-      subBrand: t.Optional(t.String()),
+      brand: t.Optional(t.String()),
       tags: t.Optional(t.Array(t.String())),
       pageIndex: t.Numeric({ minimum: 0 }),
     }),

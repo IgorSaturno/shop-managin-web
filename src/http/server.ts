@@ -26,6 +26,8 @@ import { getProducts } from "./routes/get-products";
 import { getCategories } from "./routes/get-categories";
 import { getTags } from "./routes/get-tags";
 import { getProductDetails } from "./routes/get-product-details";
+import { getBrands } from "./routes/get-brands";
+import { deleteProduct } from "./routes/delete-product";
 
 const app = new Elysia()
   .use(cors({ origin: "http://localhost:5173" }))
@@ -54,7 +56,9 @@ const app = new Elysia()
   .use(getProducts)
   .use(getProductDetails)
   .use(getCategories)
+  .use(getBrands)
   .use(getTags)
+  .use(deleteProduct)
   .onError(({ code, error, set }) => {
     switch (code) {
       case "VALIDATION": {

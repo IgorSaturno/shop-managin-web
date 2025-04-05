@@ -14,6 +14,8 @@ export const registerStore = new Elysia().post(
         email,
         phone,
         role: "manager",
+        cep: "",
+        storeId: "",
       })
       .returning({
         id: users.id,
@@ -24,7 +26,7 @@ export const registerStore = new Elysia().post(
     }
 
     await db.insert(stores).values({
-      name: storeName,
+      store_name: storeName,
       managerId: manager.id,
     });
 

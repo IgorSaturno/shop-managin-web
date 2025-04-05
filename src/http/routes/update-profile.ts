@@ -20,7 +20,7 @@ export const updateProfile = new Elysia().use(auth).put(
     await db
       .update(stores)
       .set({
-        name,
+        store_name: name,
         description,
       })
       .where(eq(stores.id, storeId));

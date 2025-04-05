@@ -26,11 +26,11 @@ export const deliverOrder = new Elysia().use(auth).patch(
       return { message: "Order not found." };
     }
 
-    if (order.status != "out_for_delivery") {
+    if (order.status != "delivering") {
       set.status = 400;
       return {
         message:
-          "You cannot deliver orders that are not in 'out_for_delivery' status.",
+          "You cannot deliver orders that are not in 'delivering' status.",
       };
     }
 

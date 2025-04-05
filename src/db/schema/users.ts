@@ -13,7 +13,7 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   phone: varchar("phone", { length: 11 }).notNull(),
-  cep: varchar("cep", { length: 9 }).notNull(),
+  cep: varchar("cep", { length: 9 }),
   streetName: text("street_name"),
   number: varchar("number", { length: 4 }),
   complement: text("complement"),

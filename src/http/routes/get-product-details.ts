@@ -27,7 +27,7 @@ export const getProductDetails = new Elysia().use(auth).get(
     const product = await db
       .select({
         productId: products.id,
-        productName: products.name,
+        productName: products.product_name,
         description: products.description,
         priceInCents: products.priceInCents,
         stock: products.stock,
@@ -55,20 +55,20 @@ export const getProductDetails = new Elysia().use(auth).get(
     // Busca as categorias (exemplo usando join com tabela associativa)
     const categoryData = await db
       .select({
-        id: categories.id,
-        name: categories.name,
+        id: categories.category_id,
+        categoryName: categories.category_name,
       })
       .from(categories)
       .innerJoin(
         productCategories,
-        eq(productCategories.categoryId, categories.id)
+        eq(productCategories.categoryId, categories.category_id)
       )
       .where(eq(productCategories.productId, productId))
       .then((res) => res[0]);
 
     // Busca as tags (exemplo similar)
     const tagsData = await db
-      .select({ tagId: tags.id, tagName: tags.name })
+      .select({ tagId: tags.id, tagName: tags.tag_name })
       .from(tags)
       .innerJoin(productTags, eq(productTags.tagId, tags.id))
       .where(eq(productTags.productId, productId));
@@ -77,11 +77,11 @@ export const getProductDetails = new Elysia().use(auth).get(
     if (product.brandId) {
       brandData = await db
         .select({
-          brandId: brands.id,
-          brandName: brands.name,
+          brandId: brands.brand_id,
+          brandName: brands.brand_name,
         })
         .from(brands)
-        .where(eq(brands.id, product.brandId))
+        .where(eq(brands.brand_id, product.brandId))
         .then((res) => res[0]);
     }
 
@@ -93,10 +93,11 @@ export const getProductDetails = new Elysia().use(auth).get(
       stock: product.stock,
       sku: product.sku,
       status: product.status,
-      category: categoryData ? categoryData.name : "",
+      category: categoryData ? categoryData.categoryName : "",
       subBrand: brandData ? brandData.brandName : "",
       tags: tagsData.map((tag) => tag.tagName),
       images: imagesData.map((img) => img.url),
+      createdAt: product.createdAt,
     };
   },
   {

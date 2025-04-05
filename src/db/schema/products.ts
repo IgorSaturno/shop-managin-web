@@ -19,7 +19,7 @@ export const products = pgTable("products", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
-  name: text("name").notNull(),
+  product_name: text("product_name").notNull(),
   description: text("description").notNull(),
   characteristics: text("characteristics").notNull(),
   priceInCents: integer("price_in_cents").notNull(),
@@ -32,8 +32,8 @@ export const products = pgTable("products", {
   })
     .default("available")
     .notNull(),
-  categoryId: text("category_id").references(() => categories.id),
-  brandId: text("brand_id").references(() => brands.id, {
+  categoryId: text("category_id").references(() => categories.category_id),
+  brandId: text("brand_id").references(() => brands.brand_id, {
     onDelete: "set null",
   }),
   storeId: text("store_id")
@@ -57,7 +57,7 @@ export const productRelations = relations(products, ({ one, many }) => ({
   categories: many(productCategories),
   brand: one(brands, {
     fields: [products.brandId],
-    references: [brands.id],
+    references: [brands.brand_id],
   }),
   images: many(productImages),
   tags: many(productTags),

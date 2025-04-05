@@ -41,7 +41,7 @@ export const getOrderDetails = new Elysia().use(auth).get(
           with: {
             product: {
               columns: {
-                name: true,
+                product_name: true,
               },
             },
           },

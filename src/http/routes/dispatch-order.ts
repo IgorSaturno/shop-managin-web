@@ -36,7 +36,7 @@ export const dispatchOrder = new Elysia().use(auth).patch(
 
     await db
       .update(orders)
-      .set({ status: "out_for_delivery" })
+      .set({ status: "delivering" })
       .where(eq(orders.id, orderId));
   },
   {

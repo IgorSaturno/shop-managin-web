@@ -1,5 +1,5 @@
 {
-  "id": "23ab845e-66da-41de-a5cd-f55206a2d959",
+  "id": "86bbbe95-abce-4a96-bc45-0d8ab2ee13a6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -68,14 +68,14 @@
       "name": "brands",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
+        "brand_id": {
+          "name": "brand_id",
           "type": "text",
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "brand_name": {
+          "name": "brand_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -121,15 +121,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "brands_parent_brand_id_brands_id_fk": {
-          "name": "brands_parent_brand_id_brands_id_fk",
+        "brands_parent_brand_id_brands_brand_id_fk": {
+          "name": "brands_parent_brand_id_brands_brand_id_fk",
           "tableFrom": "brands",
           "tableTo": "brands",
           "columnsFrom": [
             "parent_brand_id"
           ],
           "columnsTo": [
-            "id"
+            "brand_id"
           ],
           "onDelete": "set null",
           "onUpdate": "no action"
@@ -166,14 +166,14 @@
       "name": "categories",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
+        "category_id": {
+          "name": "category_id",
           "type": "text",
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "category_name": {
+          "name": "category_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -210,11 +210,11 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "categories_name_unique": {
-          "name": "categories_name_unique",
+        "categories_category_name_unique": {
+          "name": "categories_category_name_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "name"
+            "category_name"
           ]
         }
       },
@@ -433,15 +433,15 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "product_categories_category_id_categories_id_fk": {
-          "name": "product_categories_category_id_categories_id_fk",
+        "product_categories_category_id_categories_category_id_fk": {
+          "name": "product_categories_category_id_categories_category_id_fk",
           "tableFrom": "product_categories",
           "tableTo": "categories",
           "columnsFrom": [
             "category_id"
           ],
           "columnsTo": [
-            "id"
+            "category_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -567,8 +567,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "product_name": {
+          "name": "product_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -660,28 +660,28 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "products_category_id_categories_id_fk": {
-          "name": "products_category_id_categories_id_fk",
+        "products_category_id_categories_category_id_fk": {
+          "name": "products_category_id_categories_category_id_fk",
           "tableFrom": "products",
           "tableTo": "categories",
           "columnsFrom": [
             "category_id"
           ],
           "columnsTo": [
-            "id"
+            "category_id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "products_brand_id_brands_id_fk": {
-          "name": "products_brand_id_brands_id_fk",
+        "products_brand_id_brands_brand_id_fk": {
+          "name": "products_brand_id_brands_brand_id_fk",
           "tableFrom": "products",
           "tableTo": "brands",
           "columnsFrom": [
             "brand_id"
           ],
           "columnsTo": [
-            "id"
+            "brand_id"
           ],
           "onDelete": "set null",
           "onUpdate": "no action"
@@ -724,8 +724,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "store_name": {
+          "name": "store_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -789,8 +789,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "tag_name": {
+          "name": "tag_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -877,7 +877,7 @@
           "name": "cep",
           "type": "varchar(9)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "street_name": {
           "name": "street_name",

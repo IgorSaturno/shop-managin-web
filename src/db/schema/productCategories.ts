@@ -9,7 +9,7 @@ export const productCategories = pgTable("product_categories", {
     .references(() => products.id, { onDelete: "cascade" }),
   categoryId: text("category_id")
     .notNull()
-    .references(() => categories.id, { onDelete: "cascade" }),
+    .references(() => categories.category_id, { onDelete: "cascade" }),
 });
 
 export const productCategoryRelations = relations(
@@ -21,7 +21,7 @@ export const productCategoryRelations = relations(
     }),
     category: one(categories, {
       fields: [productCategories.categoryId],
-      references: [categories.id],
+      references: [categories.category_id],
     }),
   })
 );

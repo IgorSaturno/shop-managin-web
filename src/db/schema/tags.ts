@@ -8,7 +8,7 @@ export const tags = pgTable("tags", {
   id: text("id")
     .$defaultFn(() => createId())
     .primaryKey(),
-  name: text("name").notNull(),
+  tag_name: text("tag_name").notNull(),
   slug: text("slug").notNull().unique(),
   storeId: text("store_id")
     .notNull()
