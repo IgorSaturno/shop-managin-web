@@ -22,7 +22,7 @@ export const getProducts = new Elysia().use(auth).get(
       productId,
       status,
       category,
-      brand,
+      brandId,
       tags: filterTags,
       pageIndex,
     } = query;
@@ -62,7 +62,9 @@ export const getProducts = new Elysia().use(auth).get(
           category && category !== "all"
             ? eq(products.categoryId, category)
             : undefined,
-          brand && brand !== "all" ? eq(products.brandId, brand) : undefined,
+          query.brandId && query.brandId !== "all"
+            ? eq(products.brandId, query.brandId)
+            : undefined,
           // Filtro por tags: qualifica explicitamente a coluna "name" da tabela "tags"
           filterTags && filterTags.length > 0
             ? exists(
@@ -143,7 +145,7 @@ export const getProducts = new Elysia().use(auth).get(
       productId: t.Optional(t.String()),
       status: t.Optional(t.String()),
       category: t.Optional(t.String()),
-      brand: t.Optional(t.String()),
+      brandId: t.Optional(t.String()),
       tags: t.Optional(t.Array(t.String())),
       pageIndex: t.Numeric({ minimum: 0 }),
     }),

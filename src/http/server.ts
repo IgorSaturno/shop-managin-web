@@ -28,52 +28,69 @@ import { getTags } from "./routes/get-tags";
 import { getProductDetails } from "./routes/get-product-details";
 import { getBrands } from "./routes/get-brands";
 import { deleteProduct } from "./routes/delete-product";
+import { deleteCategory } from "./routes/delete-category";
+import { createCategory } from "./routes/create-category";
+import { deleteBrand } from "./routes/delete-brand";
+import { createBrand } from "./routes/create-brand";
+import { deleteTag } from "./routes/delete-tag";
+import { createTag } from "./routes/create-tag";
 
-const app = new Elysia()
-  .use(cors({ origin: "http://localhost:5173" }))
-  .use(registerStore)
-  .use(sendAuthLink)
-  .use(authenticateFromLink)
-  .use(signOut)
-  .use(getProfile)
-  .use(getManagedStore)
-  .use(getOrderDetails)
-  .use(approveOrder)
-  .use(cancelOrder)
-  .use(deliverOrder)
-  .use(dispatchOrder)
-  .use(getOrders)
-  .use(getMonthReceipt)
-  .use(getDayOrdersAmount)
-  .use(getMonthOrdersAmount)
-  .use(getMonthCanceledOrdersAmount)
-  .use(getPopularProducts)
-  .use(getDailyReceiptInPeriod)
-  .use(updateProfile)
-  .use(getCustomers)
-  .use(getCustomerDetails)
-  .use(getCustomerHistory)
-  .use(getProducts)
-  .use(getProductDetails)
-  .use(getCategories)
-  .use(getBrands)
-  .use(getTags)
-  .use(deleteProduct)
-  .onError(({ code, error, set }) => {
-    switch (code) {
-      case "VALIDATION": {
-        set.status = error.status;
-        return error.toResponse();
-      }
-      case "NOT_FOUND": {
-        return new Response(null, { status: 404 });
-      }
-      default: {
-        console.error(error);
-        return new Response(null, { status: 500 });
-      }
+const app = new Elysia().use(cors({ origin: "http://localhost:5173" }));
+
+const routes = [
+  registerStore,
+  sendAuthLink,
+  authenticateFromLink,
+  signOut,
+  getProfile,
+  getManagedStore,
+  getOrderDetails,
+  approveOrder,
+  cancelOrder,
+  deliverOrder,
+  dispatchOrder,
+  getOrders,
+  getMonthReceipt,
+  getDayOrdersAmount,
+  getMonthOrdersAmount,
+  getMonthCanceledOrdersAmount,
+  getPopularProducts,
+  getDailyReceiptInPeriod,
+  updateProfile,
+  getCustomers,
+  getCustomerDetails,
+  getCustomerHistory,
+  getProducts,
+  getProductDetails,
+  getCategories,
+  getBrands,
+  getTags,
+  deleteProduct,
+  deleteCategory,
+  deleteBrand,
+  deleteTag,
+  createCategory,
+  createBrand,
+  createTag,
+] as const;
+
+routes.forEach((route) => app.use(route));
+
+app.onError(({ code, error, set }) => {
+  switch (code) {
+    case "VALIDATION": {
+      set.status = error.status;
+      return error.toResponse();
     }
-  });
+    case "NOT_FOUND": {
+      return new Response(null, { status: 404 });
+    }
+    default: {
+      console.error(error);
+      return new Response(null, { status: 500 });
+    }
+  }
+});
 
 app.listen(3333, () => {
   console.log("🔥  HTTP server running!");
