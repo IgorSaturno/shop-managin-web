@@ -17,7 +17,7 @@ export const createBrand = new Elysia().use(auth).post(
         slug: body.name.toLowerCase().replace(/\s+/g, "-"), // Generate slug from name
       })
       .returning();
-
+    console.log("Nova marca criada:", newBrand);
     return newBrand;
   },
   {

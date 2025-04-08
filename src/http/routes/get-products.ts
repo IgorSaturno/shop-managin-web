@@ -75,7 +75,7 @@ export const getProducts = new Elysia().use(auth).get(
                   .where(
                     and(
                       eq(productTags.productId, products.id),
-                      inArray(tags.tag_name, filterTags)
+                      inArray(tags.id, filterTags)
                     )
                   )
               )

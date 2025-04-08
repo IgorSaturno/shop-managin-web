@@ -34,6 +34,7 @@ import { deleteBrand } from "./routes/delete-brand";
 import { createBrand } from "./routes/create-brand";
 import { deleteTag } from "./routes/delete-tag";
 import { createTag } from "./routes/create-tag";
+import { updateProduct } from "./routes/update-product";
 
 const app = new Elysia().use(cors({ origin: "http://localhost:5173" }));
 
@@ -72,6 +73,7 @@ const routes = [
   createCategory,
   createBrand,
   createTag,
+  updateProduct,
 ] as const;
 
 routes.forEach((route) => app.use(route));
