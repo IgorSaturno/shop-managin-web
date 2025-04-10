@@ -34,7 +34,7 @@ export const updateProduct = new Elysia().use(auth).put(
           description: body.description,
           priceInCents: Math.round(body.price * 100),
           stock: body.stock,
-          status: body.status === "Disponível" ? "available" : "unavailable",
+          status: body.status,
           categoryId: body.categoryId,
           brandId: body.brandId,
         })
@@ -69,7 +69,10 @@ export const updateProduct = new Elysia().use(auth).put(
       description: t.Optional(t.String()),
       price: t.Number(),
       stock: t.Integer(),
-      status: t.Union([t.Literal("Disponível"), t.Literal("Indisponível")]),
+      status: t.Union(
+        [t.Literal("available"), t.Literal("unavailable")],
+        t.Literal("archived")
+      ),
       categoryId: t.String(),
       brandId: t.String(),
       images: t.Array(t.String()), // Agora usando URLs

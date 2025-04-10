@@ -21,7 +21,7 @@ export const getProducts = new Elysia().use(auth).get(
       productName,
       productId,
       status,
-      category,
+      categoryId,
       brandId,
       tags: filterTags,
       pageIndex,
@@ -40,8 +40,8 @@ export const getProducts = new Elysia().use(auth).get(
         isFeatured: products.isFeatured,
         status: products.status,
         createdAt: products.createdAt,
-        categoryId: categories.category_id,
-        brandId: brands.brand_id,
+        categoryId: products.categoryId,
+        brandId: products.brandId,
       })
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.category_id))
@@ -59,8 +59,8 @@ export const getProducts = new Elysia().use(auth).get(
                 status as "available" | "unavailable" | "archived"
               )
             : undefined,
-          category && category !== "all"
-            ? eq(products.categoryId, category)
+          categoryId && categoryId !== "all"
+            ? eq(products.categoryId, categoryId)
             : undefined,
           query.brandId && query.brandId !== "all"
             ? eq(products.brandId, query.brandId)
@@ -144,7 +144,7 @@ export const getProducts = new Elysia().use(auth).get(
       productName: t.Optional(t.String()),
       productId: t.Optional(t.String()),
       status: t.Optional(t.String()),
-      category: t.Optional(t.String()),
+      categoryId: t.Optional(t.String()),
       brandId: t.Optional(t.String()),
       tags: t.Optional(t.Array(t.String())),
       pageIndex: t.Numeric({ minimum: 0 }),
