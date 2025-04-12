@@ -10,3 +10,4 @@ export * from "./productCategories";
 export * from "./categories";
 export * from "./tags";
 export * from "./brands";
+export * from "./discount-coupon";

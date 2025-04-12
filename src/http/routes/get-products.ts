@@ -31,7 +31,7 @@ export const getProducts = new Elysia().use(auth).get(
     // Constrói a query base com JOINs para categorias e marcas
     const baseQuery = db
       .select({
-        productId: products.id,
+        productId: products.product_id,
         productName: products.product_name,
         description: products.description,
         priceInCents: products.priceInCents,
@@ -52,7 +52,7 @@ export const getProducts = new Elysia().use(auth).get(
           productName
             ? ilike(products.product_name, `%${productName}%`)
             : undefined,
-          productId ? eq(products.id, productId) : undefined,
+          productId ? eq(products.product_id, productId) : undefined,
           status && status !== "all"
             ? eq(
                 products.status,
@@ -71,11 +71,11 @@ export const getProducts = new Elysia().use(auth).get(
                 db
                   .select()
                   .from(productTags)
-                  .leftJoin(tags, eq(productTags.tagId, tags.id))
+                  .leftJoin(tags, eq(productTags.tagId, tags.tag_id))
                   .where(
                     and(
-                      eq(productTags.productId, products.id),
-                      inArray(tags.id, filterTags)
+                      eq(productTags.productId, products.product_id),
+                      inArray(tags.tag_id, filterTags)
                     )
                   )
               )
@@ -111,21 +111,23 @@ export const getProducts = new Elysia().use(auth).get(
           tagName: tags.tag_name,
         })
         .from(productTags)
-        .leftJoin(tags, eq(productTags.tagId, tags.id))
+        .leftJoin(tags, eq(productTags.tagId, tags.tag_id))
         .where(inArray(productTags.productId, productIds));
 
       tagsMap = productTagsData.reduce((map, row) => {
         if (!map.has(row.productId)) {
-          map.set(row.productId, []);
+          map.set(row.productId, new Set<string>());
         }
-        map.get(row.productId).push(row.tagName);
+        if (row.tagName !== null) {
+          map.get(row.productId)!.add(row.tagName);
+        }
         return map;
-      }, new Map());
+      }, new Map<string, Set<string>>());
     }
 
     const productsWithTags = allProducts.map((product) => ({
       ...product,
-      tags: tagsMap.get(product.productId) || [],
+      tags: Array.from(tagsMap.get(product.productId) || []),
     }));
 
     const totalCount = amountQuery[0]?.count;

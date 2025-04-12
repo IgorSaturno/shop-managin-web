@@ -15,7 +15,10 @@ export const deleteProduct = new Elysia().use(auth).delete(
       .select()
       .from(products)
       .where(
-        and(eq(products.id, params.productId), eq(products.storeId, storeId))
+        and(
+          eq(products.product_id, params.productId),
+          eq(products.storeId, storeId)
+        )
       );
 
     if (!product) {
@@ -24,7 +27,7 @@ export const deleteProduct = new Elysia().use(auth).delete(
     }
 
     // Deleta o produto
-    await db.delete(products).where(eq(products.id, params.productId));
+    await db.delete(products).where(eq(products.product_id, params.productId));
 
     return { success: true };
   },

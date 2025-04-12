@@ -26,7 +26,7 @@ export const getProductDetails = new Elysia().use(auth).get(
     // Consulta básica do produto
     const product = await db
       .select({
-        productId: products.id,
+        productId: products.product_id,
         productName: products.product_name,
         description: products.description,
         priceInCents: products.priceInCents,
@@ -38,7 +38,7 @@ export const getProductDetails = new Elysia().use(auth).get(
         createdAt: products.createdAt,
       })
       .from(products)
-      .where(eq(products.id, productId))
+      .where(eq(products.product_id, productId))
       .then((res) => res[0]);
 
     if (!product) {
@@ -68,9 +68,9 @@ export const getProductDetails = new Elysia().use(auth).get(
 
     // Busca as tags (exemplo similar)
     const tagsData = await db
-      .select({ tagId: tags.id, tagName: tags.tag_name })
+      .select({ tagId: tags.tag_id, tagName: tags.tag_name })
       .from(tags)
-      .innerJoin(productTags, eq(productTags.tagId, tags.id))
+      .innerJoin(productTags, eq(productTags.tagId, tags.tag_id))
       .where(eq(productTags.productId, productId));
 
     let brandData = null;

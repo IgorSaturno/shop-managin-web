@@ -13,14 +13,14 @@ export const deleteTag = new Elysia().use(auth).delete(
     const [tag] = await db
       .select()
       .from(tags)
-      .where(and(eq(tags.id, params.tagId), eq(tags.storeId, storeId)));
+      .where(and(eq(tags.tag_id, params.tagId), eq(tags.storeId, storeId)));
 
     if (!tag) {
       set.status = 404;
       return { message: "Tag not found" };
     }
 
-    await db.delete(tags).where(eq(tags.id, params.tagId));
+    await db.delete(tags).where(eq(tags.tag_id, params.tagId));
 
     return { success: true };
   },

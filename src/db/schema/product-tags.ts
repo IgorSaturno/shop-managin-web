@@ -6,19 +6,19 @@ import { relations } from "drizzle-orm";
 export const productTags = pgTable("product_tags", {
   productId: text("product_id")
     .notNull()
-    .references(() => products.id, { onDelete: "cascade" }),
+    .references(() => products.product_id, { onDelete: "cascade" }),
   tagId: text("tag_id")
     .notNull()
-    .references(() => tags.id, { onDelete: "cascade" }),
+    .references(() => tags.tag_id, { onDelete: "cascade" }),
 });
 
 export const productTagRelations = relations(productTags, ({ one }) => ({
   product: one(products, {
     fields: [productTags.productId],
-    references: [products.id],
+    references: [products.product_id],
   }),
   tag: one(tags, {
     fields: [productTags.tagId],
-    references: [tags.id],
+    references: [tags.tag_id],
   }),
 }));

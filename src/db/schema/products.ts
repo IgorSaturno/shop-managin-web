@@ -16,7 +16,7 @@ import { productImages } from "./product-Images";
 import { orderItems } from "./order-items";
 
 export const products = pgTable("products", {
-  id: text("id")
+  product_id: text("product_id")
     .$defaultFn(() => createId())
     .primaryKey(),
   product_name: text("product_name").notNull(),

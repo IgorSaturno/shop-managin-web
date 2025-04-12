@@ -37,7 +37,7 @@ export const createProduct = new Elysia().use(auth).post(
       const [product] = await db
         .insert(products)
         .values({
-          id: createId(),
+          product_id: createId(),
           product_name,
           description,
           characteristics,

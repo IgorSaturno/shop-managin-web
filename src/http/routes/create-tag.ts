@@ -5,7 +5,7 @@ import { tags } from "../../db/schema";
 
 export const createTag = new Elysia().use(auth).post(
   "/tags",
-  async ({ getCurrentUser, body, set }) => {
+  async ({ getCurrentUser, body }) => {
     const { storeId } = await getCurrentUser();
     if (!storeId) throw new Error("Unauthorized");
 

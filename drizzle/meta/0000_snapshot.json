@@ -1,5 +1,5 @@
 {
-  "id": "86bbbe95-abce-4a96-bc45-0d8ab2ee13a6",
+  "id": "eec2356a-5b17-4b2f-812c-ee4c4724fb70",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -222,6 +222,165 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.discount_coupons": {
+      "name": "discount_coupons",
+      "schema": "",
+      "columns": {
+        "discount_coupon_id": {
+          "name": "discount_coupon_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "discount_type": {
+          "name": "discount_type",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "discount_value": {
+          "name": "discount_value",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "minimum_order": {
+          "name": "minimum_order",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'0'"
+        },
+        "max_uses": {
+          "name": "max_uses",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "used_count": {
+          "name": "used_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "valid_from": {
+          "name": "valid_from",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "valid_until": {
+          "name": "valid_until",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "discount_coupons_code_unique": {
+          "name": "discount_coupons_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.discount_coupon_to_products": {
+      "name": "discount_coupon_to_products",
+      "schema": "",
+      "columns": {
+        "coupon_id": {
+          "name": "coupon_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "discount_coupon_to_products_coupon_id_discount_coupons_discount_coupon_id_fk": {
+          "name": "discount_coupon_to_products_coupon_id_discount_coupons_discount_coupon_id_fk",
+          "tableFrom": "discount_coupon_to_products",
+          "tableTo": "discount_coupons",
+          "columnsFrom": [
+            "coupon_id"
+          ],
+          "columnsTo": [
+            "discount_coupon_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "discount_coupon_to_products_product_id_products_product_id_fk": {
+          "name": "discount_coupon_to_products_product_id_products_product_id_fk",
+          "tableFrom": "discount_coupon_to_products",
+          "tableTo": "products",
+          "columnsFrom": [
+            "product_id"
+          ],
+          "columnsTo": [
+            "product_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "discount_coupon_to_products_coupon_id_product_id_pk": {
+          "name": "discount_coupon_to_products_coupon_id_product_id_pk",
+          "columns": [
+            "coupon_id",
+            "product_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.orders_items": {
       "name": "orders_items",
       "schema": "",
@@ -278,15 +437,15 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "orders_items_product_id_products_id_fk": {
-          "name": "orders_items_product_id_products_id_fk",
+        "orders_items_product_id_products_product_id_fk": {
+          "name": "orders_items_product_id_products_product_id_fk",
           "tableFrom": "orders_items",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
           ],
           "columnsTo": [
-            "id"
+            "product_id"
           ],
           "onDelete": "set null",
           "onUpdate": "no action"
@@ -420,15 +579,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "product_categories_product_id_products_id_fk": {
-          "name": "product_categories_product_id_products_id_fk",
+        "product_categories_product_id_products_product_id_fk": {
+          "name": "product_categories_product_id_products_product_id_fk",
           "tableFrom": "product_categories",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
           ],
           "columnsTo": [
-            "id"
+            "product_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -485,15 +644,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "product_images_product_id_products_id_fk": {
-          "name": "product_images_product_id_products_id_fk",
+        "product_images_product_id_products_product_id_fk": {
+          "name": "product_images_product_id_products_product_id_fk",
           "tableFrom": "product_images",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
           ],
           "columnsTo": [
-            "id"
+            "product_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -524,28 +683,28 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "product_tags_product_id_products_id_fk": {
-          "name": "product_tags_product_id_products_id_fk",
+        "product_tags_product_id_products_product_id_fk": {
+          "name": "product_tags_product_id_products_product_id_fk",
           "tableFrom": "product_tags",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
           ],
           "columnsTo": [
-            "id"
+            "product_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "product_tags_tag_id_tags_id_fk": {
-          "name": "product_tags_tag_id_tags_id_fk",
+        "product_tags_tag_id_tags_tag_id_fk": {
+          "name": "product_tags_tag_id_tags_tag_id_fk",
           "tableFrom": "product_tags",
           "tableTo": "tags",
           "columnsFrom": [
             "tag_id"
           ],
           "columnsTo": [
-            "id"
+            "tag_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -561,8 +720,8 @@
       "name": "products",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
+        "product_id": {
+          "name": "product_id",
           "type": "text",
           "primaryKey": true,
           "notNull": true
@@ -783,8 +942,8 @@
       "name": "tags",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
+        "tag_id": {
+          "name": "tag_id",
           "type": "text",
           "primaryKey": true,
           "notNull": true

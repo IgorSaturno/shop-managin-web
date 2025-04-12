@@ -15,7 +15,7 @@ export const getTags = new Elysia().use(auth).get(
 
     return db
       .select({
-        value: tags.id,
+        value: tags.tag_id,
         label: tags.tag_name,
       })
       .from(tags)

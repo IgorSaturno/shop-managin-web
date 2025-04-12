@@ -5,7 +5,7 @@ import { relations } from "drizzle-orm";
 import { productTags } from "./product-tags";
 
 export const tags = pgTable("tags", {
-  id: text("id")
+  tag_id: text("tag_id")
     .$defaultFn(() => createId())
     .primaryKey(),
   tag_name: text("tag_name").notNull(),

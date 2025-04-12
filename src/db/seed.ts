@@ -16,6 +16,10 @@ import {
 import { db } from "./connection";
 import chalk from "chalk";
 import { createId } from "@paralleldrive/cuid2";
+import {
+  discountCoupon,
+  discountCouponToProducts,
+} from "./schema/discount-coupon";
 
 /**
  * Reset database
@@ -24,6 +28,8 @@ import { createId } from "@paralleldrive/cuid2";
 await db.delete(authLinks);
 await db.delete(orderItems);
 await db.delete(orders);
+await db.delete(discountCouponToProducts);
+await db.delete(discountCoupon);
 await db.delete(productTags);
 await db.delete(productCategories);
 await db.delete(productImages);
@@ -248,8 +254,8 @@ for (const product of availableProducts) {
 
     productTagsToInsert.push({
       id: createId(), // Se sua tabela exigir um ID
-      productId: product.id,
-      tagId: randomTag.id, // Usa um ID válido
+      productId: product.product_id,
+      tagId: randomTag.tag_id, // Usa um ID válido
       createdAt: new Date(),
     });
   }
@@ -270,7 +276,7 @@ for (const product of availableProducts) {
     const randomCategory = faker.helpers.arrayElement(availableCategories);
     productCategoriesToInsert.push({
       id: createId(), // Se necessário
-      productId: product.id,
+      productId: product.product_id,
       categoryId: randomCategory.category_id,
       createdAt: new Date(),
     });
@@ -292,7 +298,7 @@ for (const product of availableProducts) {
   for (let i = 0; i < numImages; i++) {
     productImagesToInsert.push({
       id: createId(), // Se necessário
-      productId: product.id,
+      productId: product.product_id,
       url: faker.image.urlLoremFlickr({
         category: "product",
         width: 640,
@@ -306,6 +312,65 @@ for (const product of availableProducts) {
 await db.insert(productImages).values(productImagesToInsert);
 console.log(
   chalk.yellow(`✔ Created ${productImagesToInsert.length} product images!`)
+);
+
+/**
+ * Create discount coupons
+ */
+const availableCoupons = await db
+  .insert(discountCoupon)
+  .values(
+    Array.from({ length: 5 }).map(() => ({
+      code: faker.string.alphanumeric(6).toUpperCase(), // Ex: "A3B9XY"
+      discountType: faker.helpers.arrayElement(["percentage", "fixed"]),
+      discountValue: String(
+        faker.number.float({
+          min: 5,
+          max: 50,
+          fractionDigits: 2,
+        })
+      ),
+      minimumOrder: String(
+        faker.number.float({
+          min: 50,
+          max: 500,
+          fractionDigits: 2,
+        })
+      ),
+      maxUses: faker.number.int({ min: 10, max: 100 }),
+      validFrom: faker.date.recent({ days: 7 }),
+      validUntil: faker.date.future({ years: 1 }),
+      active: faker.datatype.boolean({ probability: 0.8 }),
+      storeId: store.id,
+    }))
+  )
+  .returning();
+
+console.log(chalk.yellow(`✔ Created ${availableCoupons.length} coupons!`));
+
+/**
+ * Associate coupons with products
+ */
+const couponProductsToInsert = [];
+for (const coupon of availableCoupons) {
+  const productsToAssociate = faker.helpers.arrayElements(availableProducts, {
+    min: 1,
+    max: 3,
+  });
+
+  for (const product of productsToAssociate) {
+    couponProductsToInsert.push({
+      couponId: coupon.discount_coupon_id,
+      productId: product.product_id,
+    });
+  }
+}
+
+await db.insert(discountCouponToProducts).values(couponProductsToInsert);
+console.log(
+  chalk.yellow(
+    `✔ Created ${couponProductsToInsert.length} coupon-product associations!`
+  )
 );
 
 /**
@@ -334,7 +399,7 @@ for (let i = 0; i < 200; i++) {
     orderItemsToInsert.push({
       id: createId(),
       orderId,
-      productId: orderProduct.id,
+      productId: orderProduct.product_id,
       priceInCents: orderProduct.priceInCents,
       quantity,
       productName: orderProduct.product_name,

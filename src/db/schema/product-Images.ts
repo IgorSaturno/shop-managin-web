@@ -10,7 +10,7 @@ export const productImages = pgTable("product_images", {
   url: text("url").notNull(),
   productId: text("product_id")
     .notNull()
-    .references(() => products.id, {
+    .references(() => products.product_id, {
       onDelete: "cascade",
     }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -19,6 +19,6 @@ export const productImages = pgTable("product_images", {
 export const productImageRelations = relations(productImages, ({ one }) => ({
   product: one(products, {
     fields: [productImages.productId],
-    references: [products.id],
+    references: [products.product_id],
   }),
 }));

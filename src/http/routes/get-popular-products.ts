@@ -21,7 +21,7 @@ export const getPopularProducts = new Elysia()
       })
       .from(orderItems)
       .leftJoin(orders, eq(orders.id, orderItems.orderId))
-      .leftJoin(products, eq(products.id, orderItems.productId))
+      .leftJoin(products, eq(products.product_id, orderItems.productId))
       .where(eq(orders.storeId, storeId))
       .groupBy(products.product_name)
       .orderBy((fields) => {

@@ -18,7 +18,7 @@ export const updateProduct = new Elysia().use(auth).put(
 
       // Verificação de produto
       const product = await db.query.products.findFirst({
-        where: and(eq(products.id, id), eq(products.storeId, storeId)),
+        where: and(eq(products.product_id, id), eq(products.storeId, storeId)),
       });
 
       if (!product) {
@@ -32,13 +32,13 @@ export const updateProduct = new Elysia().use(auth).put(
         .set({
           product_name: body.name,
           description: body.description,
-          priceInCents: Math.round(body.price * 100),
+          priceInCents: Math.round(body.priceInCents * 100),
           stock: body.stock,
           status: body.status,
           categoryId: body.categoryId,
           brandId: body.brandId,
         })
-        .where(eq(products.id, id));
+        .where(eq(products.product_id, id));
 
       // Atualização de imagens
       await db.transaction(async (tx) => {
@@ -67,7 +67,7 @@ export const updateProduct = new Elysia().use(auth).put(
     body: t.Object({
       name: t.String(),
       description: t.Optional(t.String()),
-      price: t.Number(),
+      priceInCents: t.Number(),
       stock: t.Integer(),
       status: t.Union(
         [t.Literal("available"), t.Literal("unavailable")],
