@@ -5,6 +5,9 @@ import { UnauthorizedError } from "../errors/unauthorized-error";
 import {
   brands,
   categories,
+  discountCoupon,
+  discountCouponToProducts,
+  productCategories,
   products,
   productTags,
   tags,
@@ -40,11 +43,18 @@ export const getProducts = new Elysia().use(auth).get(
         isFeatured: products.isFeatured,
         status: products.status,
         createdAt: products.createdAt,
-        categoryId: products.categoryId,
+        categoryIds:
+          sql`ARRAY_AGG(DISTINCT ${productCategories.categoryId})`.as(
+            "categoryIds"
+          ),
         brandId: products.brandId,
       })
       .from(products)
-      .leftJoin(categories, eq(products.categoryId, categories.category_id))
+      .leftJoin(
+        productCategories,
+        eq(products.product_id, productCategories.productId)
+      )
+      .groupBy(products.product_id)
       .leftJoin(brands, eq(products.brandId, brands.brand_id))
       .where(
         and(
@@ -60,7 +70,7 @@ export const getProducts = new Elysia().use(auth).get(
               )
             : undefined,
           categoryId && categoryId !== "all"
-            ? eq(products.categoryId, categoryId)
+            ? eq(productCategories.categoryId, categoryId)
             : undefined,
           query.brandId && query.brandId !== "all"
             ? eq(products.brandId, query.brandId)
@@ -104,36 +114,68 @@ export const getProducts = new Elysia().use(auth).get(
     const productIds = allProducts.map((p) => p.productId);
     let tagsMap = new Map();
 
-    if (productIds.length > 0) {
-      const productTagsData = await db
-        .select({
-          productId: productTags.productId,
-          tagName: tags.tag_name,
-        })
-        .from(productTags)
-        .leftJoin(tags, eq(productTags.tagId, tags.tag_id))
-        .where(inArray(productTags.productId, productIds));
+    let couponsMap = new Map<string, Array<{ code: string }>>();
 
-      tagsMap = productTagsData.reduce((map, row) => {
-        if (!map.has(row.productId)) {
-          map.set(row.productId, new Set<string>());
+    if (productIds.length > 0) {
+      const [productTagsData, productCoupons] = await Promise.all([
+        // Consulta para tags
+        db
+          .select({
+            productId: productTags.productId,
+            tagName: tags.tag_name,
+          })
+          .from(productTags)
+          .leftJoin(tags, eq(productTags.tagId, tags.tag_id))
+          .where(inArray(productTags.productId, productIds)),
+
+        // Consulta para cupons
+        db
+          .select({
+            productId: discountCouponToProducts.productId,
+            code: discountCoupon.code,
+          })
+          .from(discountCouponToProducts)
+          .leftJoin(
+            discountCoupon,
+            eq(
+              discountCouponToProducts.couponId,
+              discountCoupon.discount_coupon_id
+            )
+          )
+          .where(inArray(discountCouponToProducts.productId, productIds)),
+      ]);
+
+      // Processamento das TAGS (corrigido)
+      productTagsData.forEach((row) => {
+        if (!tagsMap.has(row.productId)) {
+          tagsMap.set(row.productId, new Set<string>());
         }
-        if (row.tagName !== null) {
-          map.get(row.productId)!.add(row.tagName);
+        if (row.tagName) {
+          tagsMap.get(row.productId)!.add(row.tagName);
         }
-        return map;
-      }, new Map<string, Set<string>>());
+      });
+
+      // Processamento dos CUPONS
+      productCoupons
+        .filter(({ code }) => code !== null)
+        .forEach(({ productId, code }) => {
+          if (!couponsMap.has(productId)) {
+            couponsMap.set(productId, []);
+          }
+          couponsMap.get(productId)!.push({ code: code! });
+        });
     }
 
-    const productsWithTags = allProducts.map((product) => ({
+    const productsWithMetadata = allProducts.map((product) => ({
       ...product,
       tags: Array.from(tagsMap.get(product.productId) || []),
+      coupons: couponsMap.get(product.productId) || [],
     }));
 
     const totalCount = amountQuery[0]?.count;
 
     return {
-      products: productsWithTags,
+      products: productsWithMetadata,
       meta: {
         pageIndex,
         perPage,

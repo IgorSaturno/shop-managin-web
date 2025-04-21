@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
-import { users, orders, products } from ".";
+import { users, orders, products, discountCoupon } from ".";
 import { relations } from "drizzle-orm";
 
 export const stores = pgTable("stores", {
@@ -28,5 +28,6 @@ export const storesRelations = relations(stores, ({ one, many }) => {
     }),
     orders: many(orders),
     products: many(products),
+    coupons: many(discountCoupon),
   };
 });

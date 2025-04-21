@@ -16,10 +16,8 @@ import {
 import { db } from "./connection";
 import chalk from "chalk";
 import { createId } from "@paralleldrive/cuid2";
-import {
-  discountCoupon,
-  discountCouponToProducts,
-} from "./schema/discount-coupon";
+import { discountCoupon } from "./schema/discount-coupon";
+import { discountCouponToProducts } from "./schema/discount-coupons-to-products";
 
 /**
  * Reset database
@@ -321,26 +319,26 @@ const availableCoupons = await db
   .insert(discountCoupon)
   .values(
     Array.from({ length: 5 }).map(() => ({
-      code: faker.string.alphanumeric(6).toUpperCase(), // Ex: "A3B9XY"
+      code: faker.string.alphanumeric(6).toUpperCase(),
       discountType: faker.helpers.arrayElement(["percentage", "fixed"]),
-      discountValue: String(
-        faker.number.float({
+      discountValue: faker.number
+        .float({
           min: 5,
           max: 50,
           fractionDigits: 2,
         })
-      ),
-      minimumOrder: String(
-        faker.number.float({
+        .toFixed(2), // ✅ Converte para string com 2 casas decimais
+      minimumOrder: faker.number
+        .float({
           min: 50,
           max: 500,
           fractionDigits: 2,
         })
-      ),
+        .toFixed(2), // ✅ Converte para string com 2 casas decimais
       maxUses: faker.number.int({ min: 10, max: 100 }),
       validFrom: faker.date.recent({ days: 7 }),
-      validUntil: faker.date.future({ years: 1 }),
-      active: faker.datatype.boolean({ probability: 0.8 }),
+      validUntil: faker.date.soon({ days: 30 }),
+      active: faker.datatype.boolean({ probability: 0.9 }),
       storeId: store.id,
     }))
   )

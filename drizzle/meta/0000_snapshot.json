@@ -1,5 +1,5 @@
 {
-  "id": "eec2356a-5b17-4b2f-812c-ee4c4724fb70",
+  "id": "939a225a-a64e-48cf-a975-06781bfe2937",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -290,6 +290,12 @@
           "notNull": false,
           "default": true
         },
+        "store_id": {
+          "name": "store_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -306,7 +312,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "discount_coupons_store_id_stores_id_fk": {
+          "name": "discount_coupons_store_id_stores_id_fk",
+          "tableFrom": "discount_coupons",
+          "tableTo": "stores",
+          "columnsFrom": [
+            "store_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "discount_coupons_code_unique": {

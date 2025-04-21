@@ -39,6 +39,7 @@ CREATE TABLE "discount_coupons" (
 	"valid_from" timestamp DEFAULT now(),
 	"valid_until" timestamp NOT NULL,
 	"active" boolean DEFAULT true,
+	"store_id" text NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
 	CONSTRAINT "discount_coupons_code_unique" UNIQUE("code")
@@ -146,6 +147,7 @@ ALTER TABLE "auth_links" ADD CONSTRAINT "auth_links_user_id_users_id_fk" FOREIGN
 ALTER TABLE "brands" ADD CONSTRAINT "brands_parent_brand_id_brands_brand_id_fk" FOREIGN KEY ("parent_brand_id") REFERENCES "public"."brands"("brand_id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "brands" ADD CONSTRAINT "brands_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "categories" ADD CONSTRAINT "categories_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "discount_coupons" ADD CONSTRAINT "discount_coupons_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_coupon_to_products" ADD CONSTRAINT "discount_coupon_to_products_coupon_id_discount_coupons_discount_coupon_id_fk" FOREIGN KEY ("coupon_id") REFERENCES "public"."discount_coupons"("discount_coupon_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "discount_coupon_to_products" ADD CONSTRAINT "discount_coupon_to_products_product_id_products_product_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("product_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders_items" ADD CONSTRAINT "orders_items_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

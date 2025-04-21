@@ -11,3 +11,4 @@ export * from "./categories";
 export * from "./tags";
 export * from "./brands";
 export * from "./discount-coupon";
+export * from "./discount-coupons-to-products";

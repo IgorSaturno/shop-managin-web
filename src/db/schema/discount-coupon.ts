@@ -11,6 +11,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { products } from "./products";
 import { relations } from "drizzle-orm";
+import { stores } from "./stores";
+import { discountCouponToProducts } from "./discount-coupons-to-products";
 
 export const discountCoupon = pgTable("discount_coupons", {
   discount_coupon_id: text("discount_coupon_id")
@@ -32,29 +34,14 @@ export const discountCoupon = pgTable("discount_coupons", {
   validFrom: timestamp("valid_from", { mode: "date" }).defaultNow(),
   validUntil: timestamp("valid_until", { mode: "date" }).notNull(),
   active: boolean("active").default(true),
+  storeId: text("store_id")
+    .notNull()
+    .references(() => stores.id, {
+      onDelete: "cascade",
+    }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
-
-export const discountCouponToProducts = pgTable(
-  "discount_coupon_to_products",
-  {
-    couponId: text("coupon_id")
-      .notNull()
-      .references(() => discountCoupon.discount_coupon_id, {
-        onDelete: "cascade",
-      }),
-
-    productId: text("product_id")
-      .notNull()
-      .references(() => products.product_id, {
-        onDelete: "cascade",
-      }),
-  },
-  (t) => ({
-    pk: primaryKey({ columns: [t.couponId, t.productId] }),
-  })
-);
 
 export const discountCouponToProductsRelations = relations(
   discountCouponToProducts,
@@ -67,5 +54,16 @@ export const discountCouponToProductsRelations = relations(
       fields: [discountCouponToProducts.productId],
       references: [products.product_id],
     }),
+  })
+);
+
+export const discountCouponRelations = relations(
+  discountCoupon,
+  ({ one, many }) => ({
+    store: one(stores, {
+      fields: [discountCoupon.storeId],
+      references: [stores.id],
+    }),
+    products: many(discountCouponToProducts),
   })
 );

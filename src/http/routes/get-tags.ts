@@ -8,10 +8,7 @@ export const getTags = new Elysia().use(auth).get(
   "/tags",
   async ({ getCurrentUser }) => {
     const { storeId } = await getCurrentUser();
-
-    if (!storeId) {
-      throw new Response("Unauthorized", { status: 401 });
-    }
+    if (!storeId) throw new Error("Unauthorized");
 
     return db
       .select({

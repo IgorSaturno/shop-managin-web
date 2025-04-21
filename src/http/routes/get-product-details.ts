@@ -8,6 +8,8 @@ import {
   tags,
   productTags,
   brands,
+  discountCoupon,
+  discountCouponToProducts,
 } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "../auth";
@@ -34,6 +36,7 @@ export const getProductDetails = new Elysia().use(auth).get(
         sku: products.sku,
         status: products.status,
         brandId: products.brandId,
+        categoryId: products.categoryId,
         isFeatured: products.isFeatured,
         createdAt: products.createdAt,
       })
@@ -64,7 +67,7 @@ export const getProductDetails = new Elysia().use(auth).get(
         eq(productCategories.categoryId, categories.category_id)
       )
       .where(eq(productCategories.productId, productId))
-      .then((res) => res[0]);
+      .then((res) => res);
 
     // Busca as tags (exemplo similar)
     const tagsData = await db
@@ -85,6 +88,15 @@ export const getProductDetails = new Elysia().use(auth).get(
         .then((res) => res[0]);
     }
 
+    const couponsData = await db
+      .select({ code: discountCoupon.code })
+      .from(discountCouponToProducts)
+      .innerJoin(
+        discountCoupon,
+        eq(discountCouponToProducts.couponId, discountCoupon.discount_coupon_id)
+      )
+      .where(eq(discountCouponToProducts.productId, productId));
+
     return {
       productId: product.productId,
       productName: product.productName,
@@ -93,8 +105,9 @@ export const getProductDetails = new Elysia().use(auth).get(
       stock: product.stock,
       sku: product.sku,
       status: product.status,
-      category: categoryData ? categoryData.categoryName : "",
-      subBrand: brandData ? brandData.brandName : "",
+      categoryId: categoryData.map((category) => category.id),
+      brandId: brandData ? brandData.brandId : "",
+      coupons: couponsData.map((coupon) => coupon.code),
       tags: tagsData.map((tag) => tag.tagName),
       images: imagesData.map((img) => img.url),
       createdAt: product.createdAt,
