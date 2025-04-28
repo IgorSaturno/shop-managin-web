@@ -19,12 +19,15 @@ export const getCoupons = new Elysia().use(auth).get(
       .select({
         id: discountCoupon.discount_coupon_id,
         code: discountCoupon.code,
-        discountType: sql<string>`UPPER(${discountCoupon.discountType})`,
+        discountType: discountCoupon.discountType,
         discountValue: discountCoupon.discountValue,
         validUntil: discountCoupon.validUntil,
+        validFrom: discountCoupon.validFrom,
         active: discountCoupon.active,
         createdAt: discountCoupon.createdAt,
         updatedAt: discountCoupon.updatedAt,
+        minimumOrder: discountCoupon.minimumOrder,
+        maxUses: discountCoupon.maxUses,
       })
       .from(discountCoupon)
       .where(
@@ -77,6 +80,7 @@ export const getCoupons = new Elysia().use(auth).get(
     return {
       coupons: coupons.map((coupon) => ({
         ...coupon,
+        discountType: coupon.discountType.toLocaleLowerCase(),
         products:
           productsMap.get(coupon.id)?.map((productId) => ({ productId })) || [],
       })),

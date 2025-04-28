@@ -2,7 +2,7 @@ import Elysia, { t } from "elysia";
 import { auth } from "../auth";
 import { db } from "../../db/connection";
 import { discountCoupon } from "../../db/schema/discount-coupon";
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 
 export const updateCoupon = new Elysia().use(auth).patch(
   "/discount-coupons/:id",
@@ -15,32 +15,57 @@ export const updateCoupon = new Elysia().use(auth).patch(
       .select()
       .from(discountCoupon)
       .where(
-        eq(discountCoupon.discount_coupon_id, params.id) &&
+        and(
+          eq(discountCoupon.discount_coupon_id, params.id),
           eq(discountCoupon.storeId, storeId)
+        )
       );
 
     if (!existingCoupon) {
       throw new Error("Cupom não encontrado ou não autorizado");
     }
 
+    if (body.code && body.code !== existingCoupon.code) {
+      const [existingCode] = await db
+        .select()
+        .from(discountCoupon)
+        .where(
+          and(
+            eq(discountCoupon.code, body.code),
+            eq(discountCoupon.storeId, storeId),
+            ne(discountCoupon.discount_coupon_id, params.id)
+          )
+        );
+
+      if (existingCode) {
+        throw new Error("Código já está em uso por outro cupom");
+      }
+    }
+
     // Atualiza apenas os campos fornecidos
     const [updatedCoupon] = await db
       .update(discountCoupon)
       .set({
-        code: body.code,
-        discountType: body.discountType,
+        code: body.code ?? existingCoupon.code,
+        discountType: body.discountType ?? existingCoupon.discountType,
         discountValue:
-          body.discountValue !== undefined
-            ? body.discountValue.toString()
-            : undefined,
+          body.discountValue?.toString() ?? existingCoupon.discountValue,
         minimumOrder: body.minimumOrder,
-        validFrom: body.validFrom ? new Date(body.validFrom) : undefined,
-        validUntil: body.validUntil ? new Date(body.validUntil) : undefined,
-        active: body.active,
+        validFrom: body.validFrom
+          ? new Date(body.validFrom)
+          : existingCoupon.validFrom,
+        validUntil: body.validUntil
+          ? new Date(body.validUntil)
+          : existingCoupon.validUntil,
+        active: body.active ?? existingCoupon.active,
+        updatedAt: new Date(),
+        createdAt: new Date(),
       })
       .where(
-        eq(discountCoupon.discount_coupon_id, params.id) &&
+        and(
+          eq(discountCoupon.discount_coupon_id, params.id),
           eq(discountCoupon.storeId, storeId)
+        )
       )
       .returning();
 

@@ -114,11 +114,17 @@ export const getProducts = new Elysia().use(auth).get(
     const productIds = allProducts.map((p) => p.productId);
     let tagsMap = new Map();
 
-    let couponsMap = new Map<string, Array<{ code: string }>>();
+    let couponsMap = new Map<
+      string,
+      Array<{
+        code: string;
+        discountType: "percentage" | "fixed";
+        discountValue: number;
+      }>
+    >();
 
     if (productIds.length > 0) {
       const [productTagsData, productCoupons] = await Promise.all([
-        // Consulta para tags
         db
           .select({
             productId: productTags.productId,
@@ -128,24 +134,27 @@ export const getProducts = new Elysia().use(auth).get(
           .leftJoin(tags, eq(productTags.tagId, tags.tag_id))
           .where(inArray(productTags.productId, productIds)),
 
-        // Consulta para cupons
         db
           .select({
             productId: discountCouponToProducts.productId,
             code: discountCoupon.code,
+            discountType: discountCoupon.discountType,
+            discountValue: discountCoupon.discountValue,
           })
           .from(discountCouponToProducts)
-          .leftJoin(
+          .innerJoin(
             discountCoupon,
-            eq(
-              discountCouponToProducts.couponId,
-              discountCoupon.discount_coupon_id
+            and(
+              eq(
+                discountCouponToProducts.couponId,
+                discountCoupon.discount_coupon_id
+              ),
+              eq(discountCoupon.active, true)
             )
           )
           .where(inArray(discountCouponToProducts.productId, productIds)),
       ]);
 
-      // Processamento das TAGS (corrigido)
       productTagsData.forEach((row) => {
         if (!tagsMap.has(row.productId)) {
           tagsMap.set(row.productId, new Set<string>());
@@ -155,15 +164,30 @@ export const getProducts = new Elysia().use(auth).get(
         }
       });
 
-      // Processamento dos CUPONS
-      productCoupons
-        .filter(({ code }) => code !== null)
-        .forEach(({ productId, code }) => {
-          if (!couponsMap.has(productId)) {
-            couponsMap.set(productId, []);
+      productCoupons.forEach(
+        ({ productId, code, discountType, discountValue }) => {
+          if (code) {
+            if (!couponsMap.has(productId)) {
+              couponsMap.set(productId, []);
+            }
+
+            const type = discountType.toLowerCase() as "percentage" | "fixed";
+
+            if (!["percentage", "fixed"].includes(type)) {
+              console.error(
+                `Invalid discount type: ${type} for product ${productId}`
+              );
+              return;
+            }
+
+            couponsMap.get(productId)!.push({
+              code,
+              discountType: type,
+              discountValue: Number(discountValue),
+            });
           }
-          couponsMap.get(productId)!.push({ code: code! });
-        });
+        }
+      );
     }
 
     const productsWithMetadata = allProducts.map((product) => ({
@@ -172,7 +196,7 @@ export const getProducts = new Elysia().use(auth).get(
       coupons: couponsMap.get(product.productId) || [],
     }));
 
-    const totalCount = amountQuery[0]?.count;
+    const totalCount = amountQuery[0]?.count || 0;
 
     return {
       products: productsWithMetadata,
