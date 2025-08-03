@@ -1,5 +1,7 @@
 # 🛍️ Shop Managing - Sistema de Gerenciamento de Lojas
 
+> ⚠️ **Status do Projeto**: Este projeto está atualmente em desenvolvimento ativo. Funcionalidades podem ser adicionadas, modificadas ou removidas durante o processo de desenvolvimento.
+
 Um sistema completo de gerenciamento de lojas desenvolvido com arquitetura moderna, oferecendo controle total sobre produtos, pedidos, clientes e operações comerciais.
 
 ## 📋 Índice
